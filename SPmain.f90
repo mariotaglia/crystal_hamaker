@@ -2,7 +2,6 @@ use system
 use ellipsoid
 
 implicit none
-character*10 filename
 integer j, i
 
 print*, 'Program Crystal -- Hamaker'

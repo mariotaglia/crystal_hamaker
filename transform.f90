@@ -11,7 +11,7 @@ real*8 radius ! radius of the particles, must be all equal and particles should 
 integer j,i, ix,iy,iz
 real*8 dist
 real*8 energy
-real*8, vect1T(3), vect1R(3),vect2T(3),vect2R(3),vectdiff(3)
+real*8 vect1T(3), vect1R(3),vect2T(3),vect2R(3),vectdiff(3)
 ! check radius
 
 
@@ -58,19 +58,31 @@ do j = 1, NNN ! loop over all particles in central cell
          endif
          
          energy=energy+inter(dist,radius)
-     enddo ! i
+    endif ! dist
+    enddo ! i
   enddo ! ix
   enddo ! iy
   enddo ! iz
 enddo ! j
 
 print*,'calcHam: energy is', energy
+
+open(file='F_ham.dat', unit=10)
+open(file='NNN.dat', unit=20)
+write(10,*)energy
+write(20,*)NNN
+close(10)
+close(20)
+
+
 end
 
 
-function inter(x, R)
+double precision function inter(x, R)
+implicit none
+real*8 x,R,D
 D = 2*R;
-inter = -1/12.0*(D^2/(x^2-D^2)+D^2/x^2+2*log((x^2-D^2)/x^2));
+inter = -1/12.0*(D**2/(x**2-D**2)+D**2/x**2+2*log((x**2-D**2)/x**2));
 end function
 
 
@@ -90,7 +102,7 @@ real*8 fix
 real*8 cdivl
 real*8 pi
 
-pi = acos(-1)
+pi = acos(-1.0)
 gama0 = gama0/180.0*pi
 
 beta = (pi/2.0 - gama0)/2.0
