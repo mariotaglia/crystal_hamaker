@@ -115,6 +115,7 @@ do j = 1, NNN ! loop over all particles in central cell
   enddo ! iz
 enddo ! j
 
+energy = energy/2.0
 print*,'calcPAIR: energy is', energy
 
 open(file='F_pair.dat', unit=10)

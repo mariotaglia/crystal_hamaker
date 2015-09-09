@@ -65,6 +65,8 @@ do j = 1, NNN ! loop over all particles in central cell
   enddo ! iz
 enddo ! j
 
+energy=energy/2.0
+
 print*,'calcHam: energy is', energy
 
 open(file='F_ham.dat', unit=10)
