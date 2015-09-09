@@ -47,16 +47,15 @@ allocate(x(ii))
 allocate(y(ii))
 allocate(y2(ii))
 
-do i = 1, ii
+do i = 1, ii-1
 x(i)=dist(i)
 y(i)=energy(i)
 enddo
-
+nspline = ii-1
 
 yp1 = 1E31
 ypn = 1E31
-call splines(x,y,ii,yp1,ypn,y2)
-nspline = ii
+call splines(x,y,nspline,yp1,ypn,y2)
 end
 
 subroutine calcPAIR
