@@ -30,7 +30,6 @@ INQUIRE(FILE="pair.txt", EXIST=file_exists)   ! file_exists will be TRUE if the 
 
 if(file_exists.eqv..false.) then
  print*, 'initPAIR: pair.txt does not exists, pairwise additive non-Hamaker energy will not be calculated'
- stop
 endif
 
 ! load pairwise potential
