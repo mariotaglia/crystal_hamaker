@@ -34,3 +34,8 @@ real*8 TMAT(3,3)
 real*8 IMAT(3,3)
 endmodule
 
+module spline
+real*8, allocatable :: x(:), y(:), y2(:)
+integer nspline
+end module
+
