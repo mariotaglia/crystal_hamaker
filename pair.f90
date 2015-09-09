@@ -1,4 +1,4 @@
-subroutine initPAIR
+subroutine initPAIR(flagpair)
 ! this subroutine calculate non-Hamaker interactions from pair potentials
 
 use ellipsoid
@@ -11,6 +11,7 @@ LOGICAL :: file_exists
 integer IOS, ii, i,j
 real*8 dist(100), energy(100)
 real*8 yp1, ypn
+integer flagpair
 
 ! check radius
 radius = Aell(1,1)
@@ -19,7 +20,7 @@ do j = 1, NNN
  do i = 1,3
   if(Aell(i,j).ne.radius) then
      print*, 'initPAIR: all particles must be spherical and have same size' 
-     stop
+     flagpair = 1
   endif
  enddo
 enddo
@@ -72,8 +73,12 @@ integer j,i, ix,iy,iz
 real*8 dist
 real*8 energy, energypair
 real*8 vect1T(3), vect1R(3),vect2T(3),vect2R(3),vectdiff(3)
+integer flagpair
 
-call initPAIR ! init pair calculation
+flagpair = 0
+call initPAIR(flagpair) ! init pair calculation
+
+if(flagpair.eq.0) then
 
 ! loop over cell indexes 
 energy = 0.0
@@ -114,6 +119,8 @@ do j = 1, NNN ! loop over all particles in central cell
   enddo ! iy
   enddo ! iz
 enddo ! j
+
+endif ! flagpair
 
 energy = energy/2.0
 print*,'calcPAIR: energy is', energy
