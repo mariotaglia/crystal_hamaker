@@ -74,6 +74,15 @@ do while (ios == 0)
    read(buffer, *, iostat=ios) PBC(1),PBC(2),PBC(3),PBC(4),PBC(5),PBC(6)
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
+   do i = 1, 6
+   if(PBC(i).ne.1) then
+     print*, 'Hamaker program requires only translational symmetry PBC'
+     stop
+   endif
+   enddo
+
+
+
    do j = 1,5,2
     if((PBC(j).eq.1).and.(PBC(j+1).ne.1)) then 
       print*, 'parser:', 'Error in PBC'
