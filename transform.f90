@@ -10,22 +10,36 @@ integer, parameter :: Nlat = 5 ! number of lattices to scan around central cell
 real*8 radius ! radius of the particles, must be all equal and particles should be spherical
 integer j,i, ix,iy,iz
 real*8 dist
+real*8 pi
+real*8 volumeCO
 real*8 energy
 real*8 vect1T(3), vect1R(3),vect2T(3),vect2R(3),vectdiff(3)
 ! check radius
 
+select case (systemtype)
+   
+   case(1)
 
+   radius = Aell(1,1)
 
-radius = Aell(1,1)
+   do j = 1, NNN
+    do i = 1,3
+     if(Aell(i,j).ne.radius) then
+        print*, 'calcHam: all particles must be spherical and have same size' 
+        stop
+     endif
+    enddo
+   enddo
 
-do j = 1, NNN
- do i = 1,3
-  if(Aell(i,j).ne.radius) then
-     print*, 'calcHam: all particles must be spherical and have same size' 
-     stop
-  endif
- enddo
-enddo
+   case(9) ! case cuboctahedron
+
+   pi = acos(-1.0)
+   volumeCO = (1.0/6.0)*Loctall(1)**3 - 0.5*(Loctall(1) -Lcubell(1))**3
+   radius = ((3.0/4.0)*(volumeCO/pi))**(1.0/3.0)
+
+   print*, 'All particles must be truncated octahedrons and have same size'
+
+   end select
 
 ! loop over cell indexes 
 

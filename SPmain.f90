@@ -10,7 +10,7 @@ print*, 'GIT Version: ', _VERSION
 call readinput
 call inittransf ! Create transformation matrixes
 call calcHam ! calculates Hamaker interaction between particles
-call calcPAIR ! calculates non-Hamaker interactions between particles if pair.txt is available
+!call calcPAIR ! calculates non-Hamaker interactions between particles if pair.txt is available
 end
 
 

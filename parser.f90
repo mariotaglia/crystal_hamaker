@@ -118,58 +118,124 @@ do while (ios == 0)
    read(buffer, *, iostat=ios) gama0
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
- case ('kaptype')
-   read(buffer, *, iostat=ios) kaptype
+  case ('transform_type')
+          read(buffer, *, iostat=ios) transform_type
+          print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
+          
+          select case (transform_type) ! Unit cell transformation
+          
+          case(1) ! modifies just 1 axis (c) and 1 angle (gama)
+                  read(fh, *) basura
+                  read(fh, *) cdiva ! norm c' basis vector with respect bais vector a'
+                  read(fh, *) basura
+                  read(fh, *) gama0 ! angle between a' and b' vector
+          case(2) ! Use the transformation matrix between tranformed cell to a cell of 90,90,90 angles
+                  read(fh, *) basura
+                  do j = 1,3 ! read transformation matrix
+                  read(fh, *) MAT(j,1), MAT(j,2), MAT(j,3)
+                  enddo
+   endselect
+
+  case ('coordinate_system') ! 1: real coordinates 2: fractional coordinates in the cell 3: fractional x,y + real z
+          read(buffer, *, iostat=ios) coordinate_system
+          print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
+  
+ case ('systemtype')
+   read(buffer, *, iostat=ios) systemtype
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
-   select case (kaptype)
+    select case (systemtype)
     case(1) 
      read(fh, *) basura
-     read(fh, *)NNN
+     read(fh, *) NNN
 
      if(NNN.ne.0) then
 
      call allocateell
-     read(fh, *), basura
+     read(fh, *) basura
      do j = 1, NNN
-     read(fh, *), Rellf(1,j), Rellf(2,j), Rellf(3,j)
+     read(fh, *) Rellf(1,j), Rellf(2,j), Rellf(3,j)
      print*, 'parser:','Set particle',j,'pos to',  Rellf(1,j), Rellf(2,j), Rellf(3,j)
      enddo
-     read(fh, *), basura
+     read(fh, *) basura
      do j = 1, NNN
-     read(fh, *), Aell(1,j), Aell(2,j), Aell(3,j)
+     read(fh, *) Aell(1,j), Aell(2,j), Aell(3,j)
      print*, 'parser:','Set particle',j,'axis to',  Aell(1,j), Aell(2,j), Aell(3,j)
      enddo
-     read(fh, *), basura
+     read(fh, *) basura
      do j = 1, NNN
-     read(fh, *), rotmatrix(1,1,j), rotmatrix(1,2,j), rotmatrix(1,3,j)
-     read(fh, *), rotmatrix(2,1,j), rotmatrix(2,2,j), rotmatrix(2,3,j)
-     read(fh, *), rotmatrix(3,1,j), rotmatrix(3,2,j), rotmatrix(3,3,j)
+     read(fh, *) rotmatrix(1,1,j), rotmatrix(1,2,j), rotmatrix(1,3,j)
+     read(fh, *) rotmatrix(2,1,j), rotmatrix(2,2,j), rotmatrix(2,3,j)
+     read(fh, *) rotmatrix(3,1,j), rotmatrix(3,2,j), rotmatrix(3,3,j)
          print*, 'parser:','Set particle',j,'rotation to:'
          print*, 'parser:', rotmatrix(1,1,j), rotmatrix(1,2,j), rotmatrix(1,3,j)
          print*, 'parser:', rotmatrix(2,1,j), rotmatrix(2,2,j), rotmatrix(2,3,j)
          print*, 'parser:', rotmatrix(3,1,j), rotmatrix(3,2,j), rotmatrix(3,3,j)
      enddo
 
-     read(fh, *), basura
+     read(fh, *) basura
      do j = 1, NNN
-     read(fh, *), sigma(j)
+     read(fh, *) sigma(j)
      print*, 'parser:','Set particle',j,'surface coverage to', sigma(j)
      enddo
 
-     read(fh, *), basura
+     read(fh, *) basura
      do j = 1, NNN
-     read(fh, *), echarge(j)
+     read(fh, *) echarge(j)
      print*, 'parser:','Set particle',j,'charge to', echarge(j)
      enddo
-     read(fh, *), basura
+     read(fh, *) basura
      do j = 1, NNN
-     read(fh, *), eeps(j)
+     read(fh, *) eeps(j)
      print*, 'parser:','Set particle',j,'hydrophobicity to', eeps(j)
      enddo
 
      endif ! NNN
-endselect
+
+    case(9)
+
+     read(fh, *) basura
+     read(fh, *) NNN
+     
+     call allocateellCO
+
+     read(fh, *) basura
+     do j = 1, NNN
+        read(fh, *) Rellf(1,j), Rellf(2,j), Rellf(3,j)
+     print*, 'parser:','Set particle',j,'pos to',  Rellf(1,j), Rellf(2,j), Rellf(3,j)
+     enddo
+
+     read(fh, *) basura
+     do j = 1, NNN
+        read(fh, *) Loctall(j)
+     print*, 'parser:','Set particle',j,'octahedron size to',  Loctall(j)
+     enddo
+
+     read(fh, *) basura
+     do j = 1, NNN
+        read(fh, *) Lcubell(j)
+     print*, 'parser:','Set particle',j,'cube size to',  Lcubell(j)
+     enddo
+
+     read(fh, *) basura
+     do j = 1, NNN
+        read(fh, *) sigma(j)
+     print*, 'parser:','Set particle',j,'surface coverage to', sigma(j)
+     enddo
+
+     read(fh, *) basura
+     do j = 1, NNN
+        read(fh, *) echarge(j)
+     print*, 'parser:','Set particle',j,'charge to', echarge(j)
+     enddo
+
+     read(fh, *) basura
+     do j = 1, NNN
+         read(fh, *) eeps(j)
+     print*, 'parser:','Set particle',j,'hydrophobicity to', eeps(j)
+     enddo
+   endselect
+
 endselect
 
 endif

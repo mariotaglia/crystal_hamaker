@@ -5,10 +5,12 @@ integer  dimx
 integer  dimy 
 integer  dimz 
 integer PBC(6)
+integer transform_type
+integer coordinate_system
 endmodule
 
 module ellipsoid
-integer kaptype
+integer systemtype
 integer NNN
 real*8, allocatable :: rotmatrix(:,:,:)
 real*8, allocatable :: Aell(:,:)
@@ -25,6 +27,9 @@ real*8, allocatable :: orient(:,:)
 real*8, allocatable :: echarge(:)
 real*8, allocatable :: sigma(:)
 real*8, allocatable :: eeps(:)
+! cuboctahedron only
+real*8, allocatable :: Loctall(:)
+real*8, allocatable :: Lcubell(:)
 end module
 
 module transform
