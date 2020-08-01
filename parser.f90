@@ -75,8 +75,8 @@ do while (ios == 0)
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
    do i = 1, 6
-   if(PBC(i).ne.1) then
-     print*, 'Hamaker program requires only translational symmetry PBC'
+   if(PBC(i).eq.3) then
+     print*, 'Hamaker program cannot work with reflecting BC'
      stop
    endif
    enddo
@@ -102,20 +102,12 @@ do while (ios == 0)
    read(buffer, *, iostat=ios) delta
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
- case ('cdiva')
-   read(buffer, *, iostat=ios) cdiva
-   print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
-
  case ('dimy')
    read(buffer, *, iostat=ios) dimy
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
  case ('dimz')
    read(buffer, *, iostat=ios) dimz
-   print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
-
- case ('gama')
-   read(buffer, *, iostat=ios) gama0
    print*, 'parser:','Set ',trim(label),' = ',trim(buffer)
 
   case ('transform_type')
@@ -253,8 +245,6 @@ if(dimy.eq.ndi)call stopundef('dimy')
 if(dimz.eq.ndi)call stopundef('dimz')
 
 if(delta.eq.ndr)call stopundef('delta')
-if(cdiva.eq.ndr)call stopundef('cdiva')
-if(gama0.eq.ndr)call stopundef('gama')
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

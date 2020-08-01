@@ -6,7 +6,7 @@ use transform
 use system
 implicit none
 real*8, external :: inter ! interaction function
-integer, parameter :: Nlat = 5 ! number of lattices to scan around central cell
+integer, parameter :: Nlat = 7 ! number of lattices to scan around central cell
 real*8 radius ! radius of the particles, must be all equal and particles should be spherical
 integer j,i, ix,iy,iz
 real*8 dist
@@ -14,6 +14,7 @@ real*8 pi
 real*8 volumeCO
 real*8 energy
 real*8 vect1T(3), vect1R(3),vect2T(3),vect2R(3),vectdiff(3)
+integer Nlatx, Nlaty, Nlatz ! periodic images to scan in each direction, may be different due to PBC
 ! check radius
 
 select case (systemtype)
@@ -41,6 +42,26 @@ select case (systemtype)
 
    end select
 
+! check PBC
+
+if(PBC(1).eq.1) then
+ Nlatx=Nlat
+else 
+ Nlatx=0
+endif
+
+if(PBC(3).eq.1) then
+ Nlaty=Nlat
+else 
+ Nlaty=0
+endif
+
+if(PBC(5).eq.1) then
+ Nlatz=Nlat
+else 
+ Nlatz=0
+endif
+
 ! loop over cell indexes 
 
 energy = 0.0
@@ -51,9 +72,9 @@ do j = 1, NNN ! loop over all particles in central cell
       vect1T(3) = Rellf(3,j)*delta*dfloat(dimz)
       vect1R = MATMUL(IMAT,vect1T) ! coordinates of particle in real space
 
- do ix = -Nlat,Nlat 
- do iy = -Nlat,Nlat 
- do iz = -Nlat,Nlat 
+ do ix = -Nlatx,Nlatx 
+ do iy = -Nlaty,Nlaty
+ do iz = -Nlatz,Nlatz 
    do i = 1, NNN ! loop over all particles in cell ix,iy,iz
 
       vect2T(1) = Rellf(1,i)*delta*dfloat(dimx)+dfloat(dimx*ix)*delta
@@ -101,11 +122,17 @@ D = 2*R;
 inter = -1/12.0*(D**2/(x**2-D**2)+D**2/x**2+2*log((x**2-D**2)/x**2));
 end function
 
+double precision function NORMA(x)
+implicit none
+real*8 x(3)
+NORMA = (x(1)**2+x(2)**2+x(3)**2)**(0.5)
+end function
 
 
 
 subroutine inittransf
-use transform 
+use system
+use transform
 use system
 
 implicit none
@@ -116,9 +143,14 @@ real*8 x(3),xx(3), vect1(3),vect2(3),vect3(3), vol
 real*8 vectc(3)
 real*8 fix
 real*8 cdivl
+real*8, external :: NORMA
 real*8 pi
 
-pi = acos(-1.0)
+pi=acos(-1.0)
+
+if(transform_type.eq.1) then
+
+
 gama0 = gama0/180.0*pi
 
 beta = (pi/2.0 - gama0)/2.0
@@ -138,7 +170,7 @@ MAT(3,1) = 0.0
 MAT(3,2) = 0.0
 MAT(3,3) = 1.0/cdivl/fix ! divide by cdivl to keep constant volume
 
-
+endif
 TMAT = TRANSPOSE(MAT)
 
 dimn = 3
@@ -150,32 +182,35 @@ xx(1) = delta
 xx(2) = 0.0
 xx(3) = 0.0
 
-x = MATMUL(IMAT,xx) 
+x = MATMUL(IMAT,xx)
 vect1 = x
 
-xx(2) = delta
 xx(1) = 0.0
+xx(2) = delta
 xx(3) = 0.0
 
 x = MATMUL(IMAT,xx) !
 vect2 = x
 
-xx(3) = delta
-xx(2) = 0.0
 xx(1) = 0.0
+xx(2) = 0.0
+xx(3) = delta
 
-x = MATMUL(IMAT,xx) ! 
+x = MATMUL(IMAT,xx) ! to real space 
 vect3 = x
 
 call cross_product(vect2,vect3,vectc)
 
 vol = DOT_PRODUCT(vect1,vectc)
 
+print*, 'transform:', 'Volume of a lattice cell in real space', vol, 'nm^3'
+print*, 'transform:', 'Volume of a lattice cell in transformed space', delta**3, 'nm^3'
+
 xx(1) = delta*dfloat(dimx)
 xx(2) = 0.0
 xx(3) = 0.0
 
-x = MATMUL(IMAT,xx) 
+x = MATMUL(IMAT,xx)
 vect1 = x
 
 xx(2) = delta*dfloat(dimy)
@@ -196,15 +231,21 @@ call cross_product(vect2,vect3,vectc)
 
 vol = DOT_PRODUCT(vect1,vectc)
 
-print*, 'transform:', 'a / nm ', norm2(vect1)
-print*, 'transform:', 'b / nm ', norm2(vect2)
-print*, 'transform:', 'c / nm ', norm2(vect3)
-print*, 'transform:', 'gama ', gama0*180/3.14159 
-print*, 'transform:', 'c/a', norm2(vect3)/norm2(vect1)
-print*, 'transform:', 'c/b', norm2(vect3)/norm2(vect2)
+print*, 'transform:', 'a / nm ', NORMA(vect1)
+print*, 'transform:', 'b / nm ', NORMA(vect2)
+print*, 'transform:', 'c / nm ', NORMA(vect3)
+if(transform_type.eq.1)then
+print*, 'transform:', 'gama ', gama0*180.0/pi
+endif
+print*, 'transform:', 'b/a', NORMA(vect2)/NORMA(vect1)
+print*, 'transform:', 'c/a', NORMA(vect3)/NORMA(vect1)
 print*, 'transform:', 'cell volume ', vol, 'nm^3'
 
 end subroutine
+
+
+
+
 
 subroutine initellpos ! transforms ellipsoid coordinates from fractional to real
 use transform
